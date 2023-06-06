@@ -51,7 +51,7 @@ public class BookController {
         return"redirect:/books";
     }
 
-    @PostMapping("/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteBook(@PathVariable("id") Long id) {
         Book book = bookService.getBookById(id);
         bookService.deleteBook(id);
@@ -60,21 +60,29 @@ public class BookController {
 
     @GetMapping("/edit/{id}")
     public String editBookForm(@PathVariable("id") Long id, Model model) {
-        Book book = bookService.getBookById(id);
-        model.addAttribute("book", book);
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "book/edit";
+        Book editBook = bookService.getBookById(id);
+        if(editBook !=null){
+            model.addAttribute("book", editBook);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            return "book/edit";
+        }else {
+            return "not-found";
+        }
+
     }
+
 
 
     @PostMapping("/edit")
     public String editBook(@Valid @ModelAttribute("book") Book book, BindingResult bindingResult, Model model) {
         // Trường hợp có lỗi ràng buộc thì trả lại view edit
         if (bindingResult.hasErrors()) {
+            model.addAttribute("book", new Book());
             model.addAttribute("categories", categoryService.getAllCategories());
             return "book/edit";
         }
         bookService.updateBook(book);
         return "redirect:/books";
     }
+
 }
